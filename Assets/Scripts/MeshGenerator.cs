@@ -21,6 +21,7 @@ public class MeshGenerator : MonoBehaviour
         mesh.vertices = Verticies;
         mesh.uv = UVs;
         mesh.triangles = Triangles;
+        mesh.RecalculateNormals();
     }
 
     private Vector3[] createVerticies()
@@ -41,13 +42,6 @@ public class MeshGenerator : MonoBehaviour
 
     private int[] createTriangles()
     {
-        //return new int[]
-        //{
-        //    0,
-        //    2,
-        //    1,
-        //};
-
         int[] triangels = new int[xSize * zSize * 6];
 
         int vert = 0;
