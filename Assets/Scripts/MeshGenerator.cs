@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MeshGenerator : MonoBehaviour
@@ -89,3 +87,6 @@ public class MeshGenerator : MonoBehaviour
         return triangels;
     }
 }
+
+// Sources:
+// https://catlikecoding.com/unity/tutorials/flow/waves/
