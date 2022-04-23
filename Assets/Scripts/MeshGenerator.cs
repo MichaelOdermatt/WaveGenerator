@@ -4,29 +4,21 @@ public class MeshGenerator : MonoBehaviour
 {
     int xSize = 10;
     int zSize = 10;
-    float waveSpeed = 1;
+    float waveSpeed = 2;
     float waveLength = 10;
     float amplitude = 1f;
 
     Mesh waterMesh;
     Vector3[] Verticies;
+    Vector3[] InitialVerticies;
     Vector2[] UVs;
     int[] Triangles;
 
-    // fix
-    float[] xs;
-
     void Start()
     {
-        Verticies = createVerticies();
+        InitialVerticies = createVerticies();
+        Verticies = (Vector3[])InitialVerticies.Clone();
         Triangles = createTriangles();
-
-        // fix
-        xs = new float[Verticies.Length];
-        for(int i = 0; i < xs.Length; i++)
-        {
-            xs[i] = Verticies[i].x;
-        }
 
         waterMesh = new Mesh();
         GetComponent<MeshFilter>().mesh = waterMesh;
@@ -41,10 +33,11 @@ public class MeshGenerator : MonoBehaviour
         for(int i = 0; i < Verticies.Length; i++)
         {
             Vector3 vert = Verticies[i];
+            Vector3 initialVert = InitialVerticies[i];
 
             float k = 2 * Mathf.PI / waveLength;
-            float f = k * (vert.x - waveSpeed * Time.time);
-            vert.x = xs[i] + amplitude * Mathf.Cos(f);
+            float f = k * (initialVert.x - waveSpeed * Time.time);
+            vert.x = initialVert.x + amplitude * Mathf.Cos(f);
             vert.y = amplitude * Mathf.Sin(f);
 
             Verticies[i] = vert;
