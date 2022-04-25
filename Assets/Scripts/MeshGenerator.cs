@@ -30,15 +30,23 @@ public class MeshGenerator : MonoBehaviour
 
     private void Update()
     {
+        Vector3 direction = new Vector3(1, 0, 1);
+        Vector2 direction2d = new Vector2(direction.x, direction.z);
+
         for(int i = 0; i < Verticies.Length; i++)
         {
             Vector3 vert = Verticies[i];
             Vector3 initialVert = InitialVerticies[i];
 
             float k = 2 * Mathf.PI / waveLength;
-            float f = k * (initialVert.x - waveSpeed * Time.time);
-            vert.x = initialVert.x + amplitude * Mathf.Cos(f);
+            float c = Mathf.Sqrt(9.8f / k);
+            Vector3 d = direction2d.normalized;
+            float dot = Vector2.Dot(d, new Vector2(initialVert.x, initialVert.z));
+            float f = k * (dot - c * Time.time);
+
+            vert.x = initialVert.x + (amplitude * Mathf.Cos(f));
             vert.y = amplitude * Mathf.Sin(f);
+            vert.z = initialVert.z + (amplitude * Mathf.Cos(f));
 
             Verticies[i] = vert;
         }
