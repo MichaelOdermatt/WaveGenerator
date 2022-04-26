@@ -4,10 +4,9 @@ public class MeshGenerator : MonoBehaviour
 {
     int xSize = 10;
     int zSize = 10;
-    float waveLength = 8;
-    float amplitude = 0.5f;
 
-    Vector4 Wave1 = new Vector4(1, 0, 0.5f, 10);
+    Vector4 Wave1 = new Vector4(1, 1, 0.5f, 7);
+    Vector4 Wave2 = new Vector4(0, 1, 0.25f, 3);
 
     Mesh waterMesh;
     Vector3[] Verticies;
@@ -33,7 +32,12 @@ public class MeshGenerator : MonoBehaviour
     {
         for(int i = 0; i < Verticies.Length; i++)
         {
-            Verticies[i] = GerstnerWave(Wave1, InitialVerticies[i]);
+            Vector3 newPoint = InitialVerticies[i];
+
+            newPoint += GerstnerWave(Wave1, InitialVerticies[i]);
+            newPoint += GerstnerWave(Wave2, InitialVerticies[i]);
+
+            Verticies[i] = newPoint;
         }
 
         waterMesh.vertices = Verticies;
@@ -42,20 +46,23 @@ public class MeshGenerator : MonoBehaviour
 
     private Vector3 GerstnerWave(Vector4 wave, Vector3 vertex)
     {
-        Vector3 newPosition = Vector3.zero;
+        Vector2 waveDirection = new Vector2(wave.x, wave.y);
+        waveDirection.Normalize();
 
-        Vector2 waveDirection = new Vector2(wave.x, wave.z);
-
+        float steepness = wave.z;
+        float waveLength = wave.w;
         float k = 2 * Mathf.PI / waveLength;
         float gravity = Mathf.Abs(Physics.gravity.y);
         float c = Mathf.Sqrt(gravity / k);
-        Vector3 d = waveDirection.normalized;
-        float dot = Vector2.Dot(d, new Vector2(vertex.x, vertex.z));
+        float dot = Vector2.Dot(waveDirection, new Vector2(vertex.x, vertex.z));
         float f = k * (dot - c * Time.time);
+        float a = steepness / k;
 
-        newPosition.x = vertex.x + (amplitude * Mathf.Cos(f));
-        newPosition.y = amplitude * Mathf.Sin(f);
-        newPosition.z = vertex.z + (amplitude * Mathf.Cos(f));
+        Vector3 newPosition = Vector3.zero;
+
+        newPosition.x = waveDirection.x * (a * Mathf.Cos(f));
+        newPosition.y = a * Mathf.Sin(f);
+        newPosition.z = waveDirection.y * (a  * Mathf.Cos(f));
 
         return newPosition;
     }
