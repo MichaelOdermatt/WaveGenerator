@@ -7,6 +7,8 @@ public class MeshGenerator : MonoBehaviour
     float waveLength = 8;
     float amplitude = 0.5f;
 
+    Vector4 Wave1 = new Vector4(1, 0, 0.5f, 10);
+
     Mesh waterMesh;
     Vector3[] Verticies;
     Vector3[] InitialVerticies;
@@ -29,31 +31,33 @@ public class MeshGenerator : MonoBehaviour
 
     private void Update()
     {
-        Vector3 direction = new Vector3(1, 0, 1);
-        Vector2 direction2d = new Vector2(direction.x, direction.z);
-
         for(int i = 0; i < Verticies.Length; i++)
         {
-            Vector3 vert = Verticies[i];
-            Vector3 initialVert = InitialVerticies[i];
-
-            float k = 2 * Mathf.PI / waveLength;
-            float gravity = Mathf.Abs(Physics.gravity.y);
-
-            float c = Mathf.Sqrt(gravity / k);
-            Vector3 d = direction2d.normalized;
-            float dot = Vector2.Dot(d, new Vector2(initialVert.x, initialVert.z));
-            float f = k * (dot - c * Time.time);
-
-            vert.x = initialVert.x + (amplitude * Mathf.Cos(f));
-            vert.y = amplitude * Mathf.Sin(f);
-            vert.z = initialVert.z + (amplitude * Mathf.Cos(f));
-
-            Verticies[i] = vert;
+            Verticies[i] = GerstnerWave(Wave1, InitialVerticies[i]);
         }
 
         waterMesh.vertices = Verticies;
         waterMesh.RecalculateNormals();
+    }
+
+    private Vector3 GerstnerWave(Vector4 wave, Vector3 vertex)
+    {
+        Vector3 newPosition = Vector3.zero;
+
+        Vector2 waveDirection = new Vector2(wave.x, wave.z);
+
+        float k = 2 * Mathf.PI / waveLength;
+        float gravity = Mathf.Abs(Physics.gravity.y);
+        float c = Mathf.Sqrt(gravity / k);
+        Vector3 d = waveDirection.normalized;
+        float dot = Vector2.Dot(d, new Vector2(vertex.x, vertex.z));
+        float f = k * (dot - c * Time.time);
+
+        newPosition.x = vertex.x + (amplitude * Mathf.Cos(f));
+        newPosition.y = amplitude * Mathf.Sin(f);
+        newPosition.z = vertex.z + (amplitude * Mathf.Cos(f));
+
+        return newPosition;
     }
 
     private Vector3[] createVerticies()
