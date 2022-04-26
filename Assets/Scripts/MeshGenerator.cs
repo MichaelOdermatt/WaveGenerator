@@ -4,9 +4,8 @@ public class MeshGenerator : MonoBehaviour
 {
     int xSize = 10;
     int zSize = 10;
-    float waveSpeed = 2;
-    float waveLength = 10;
-    float amplitude = 1f;
+    float waveLength = 8;
+    float amplitude = 0.5f;
 
     Mesh waterMesh;
     Vector3[] Verticies;
@@ -39,7 +38,9 @@ public class MeshGenerator : MonoBehaviour
             Vector3 initialVert = InitialVerticies[i];
 
             float k = 2 * Mathf.PI / waveLength;
-            float c = Mathf.Sqrt(9.8f / k);
+            float gravity = Mathf.Abs(Physics.gravity.y);
+
+            float c = Mathf.Sqrt(gravity / k);
             Vector3 d = direction2d.normalized;
             float dot = Vector2.Dot(d, new Vector2(initialVert.x, initialVert.z));
             float f = k * (dot - c * Time.time);
