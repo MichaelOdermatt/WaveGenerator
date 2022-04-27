@@ -2,11 +2,12 @@ using UnityEngine;
 
 public class MeshGenerator : MonoBehaviour
 {
-    int xSize = 10;
-    int zSize = 10;
+    int xSize = 25;
+    int zSize = 25;
 
-    Vector4 Wave1 = new Vector4(1, 1, 0.5f, 7);
-    Vector4 Wave2 = new Vector4(0, 1, 0.25f, 3);
+    Vector4 Wave1 = new Vector4(1, 1, 0.1f, 15);
+    Vector4 Wave2 = new Vector4(0, 1, 0.15f, 5);
+    Vector4 Wave3 = new Vector4(1, 1.3f, 0.03f, 10);
 
     Mesh waterMesh;
     Vector3[] Verticies;
@@ -36,6 +37,9 @@ public class MeshGenerator : MonoBehaviour
 
             newPoint += GerstnerWave(Wave1, InitialVerticies[i]);
             newPoint += GerstnerWave(Wave2, InitialVerticies[i]);
+            newPoint += GerstnerWave(Wave3, InitialVerticies[i]);
+
+            newPoint.y += Mathf.PerlinNoise(newPoint.x, newPoint.y) / 2;
 
             Verticies[i] = newPoint;
         }
