@@ -4,9 +4,10 @@ public class MeshGenerator : MonoBehaviour
 {
     int xSize = 25;
     int zSize = 25;
+    float HeightMultiplier = 0.5f;
 
     Vector4 Wave1 = new Vector4(1, 1, 0.1f, 15);
-    Vector4 Wave2 = new Vector4(0, 1, 0.15f, 5);
+    Vector4 Wave2 = new Vector4(0, 1, 0.15f,5);
     Vector4 Wave3 = new Vector4(1, 1.3f, 0.03f, 10);
 
     Mesh waterMesh;
@@ -14,9 +15,12 @@ public class MeshGenerator : MonoBehaviour
     Vector3[] InitialVerticies;
     Vector2[] UVs;
     int[] Triangles;
+    float[,] NoiseMap;
 
     void Start()
     {
+        NoiseMap = NoiseGenerator.GenerateNoiseMap(xSize + 1, zSize + 1, 234, 1, 3, 0.5f, 2.5f, new Vector2(0, 0));
+
         InitialVerticies = createVerticies();
         Verticies = (Vector3[])InitialVerticies.Clone();
         Triangles = createTriangles();
@@ -39,7 +43,7 @@ public class MeshGenerator : MonoBehaviour
             newPoint += GerstnerWave(Wave2, InitialVerticies[i]);
             newPoint += GerstnerWave(Wave3, InitialVerticies[i]);
 
-            newPoint.y += Mathf.PerlinNoise(newPoint.x, newPoint.y) / 2;
+            newPoint.y += NoiseMap[(int)InitialVerticies[i].x, (int)InitialVerticies[i].z] * HeightMultiplier;
 
             Verticies[i] = newPoint;
         }
@@ -116,4 +120,4 @@ public class MeshGenerator : MonoBehaviour
 }
 
 // Sources:
-// https://catlikecoding.com/unity/tutorials/flow/waves/
+// Gernstner Waves https://catlikecoding.com/unity/tutorials/flow/waves/
