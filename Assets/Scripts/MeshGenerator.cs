@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class MeshGenerator : MonoBehaviour
 {
-    int xSize = 25;
-    int zSize = 25;
-    float HeightMultiplier = 0.5f;
+    int xSize = 100;
+    int zSize = 100;
+    float HeightMultiplier = 1f;
 
-    Vector4 Wave1 = new Vector4(1, 1, 0.1f, 15);
-    Vector4 Wave2 = new Vector4(0, 1, 0.15f,5);
-    Vector4 Wave3 = new Vector4(1, 1.3f, 0.03f, 10);
+    Vector4 Wave1 = new Vector4(1, 1, 0.1f, 150);
+    Vector4 Wave2 = new Vector4(0, 1, 0.15f,50);
+    Vector4 Wave3 = new Vector4(1, 1.3f, 0.03f, 100);
 
     Mesh waterMesh;
     Vector3[] Verticies;
@@ -19,7 +19,7 @@ public class MeshGenerator : MonoBehaviour
 
     void Start()
     {
-        NoiseMap = NoiseGenerator.GenerateNoiseMap(xSize + 1, zSize + 1, 234, 1, 3, 0.5f, 2.5f, new Vector2(0, 0));
+        NoiseMap = NoiseGenerator.GenerateNoiseMap(xSize + 1, zSize + 1, 234, 5, 3, 0.5f, 2.5f, new Vector2(0, 0));
 
         InitialVerticies = createVerticies();
         Verticies = (Vector3[])InitialVerticies.Clone();
