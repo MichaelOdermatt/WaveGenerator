@@ -2,13 +2,18 @@ using UnityEngine;
 
 public class MeshGenerator : MonoBehaviour
 {
+    public float Scale = 5;
+    public int Octaves = 4;
+    public float Persistance = 0.5f;
+    public float Lacunarity = 3.5f;
+
     int xSize = 100;
     int zSize = 100;
-    float HeightMultiplier = 1f;
+    public float HeightMultiplier = 1f;
 
-    Vector4 Wave1 = new Vector4(1, 1, 0.1f, 150);
-    Vector4 Wave2 = new Vector4(0, 1, 0.15f,50);
-    Vector4 Wave3 = new Vector4(1, 1.3f, 0.03f, 100);
+    public Vector4 Wave1 = new Vector4(1, 1, 0.1f, 150);
+    public Vector4 Wave2 = new Vector4(0, 1, 0.15f,50);
+    public Vector4 Wave3 = new Vector4(1, 1.3f, 0.03f, 100);
 
     Mesh waterMesh;
     Vector3[] Verticies;
@@ -19,8 +24,6 @@ public class MeshGenerator : MonoBehaviour
 
     void Start()
     {
-        NoiseMap = NoiseGenerator.GenerateNoiseMap(xSize + 1, zSize + 1, 234, 5, 3, 0.5f, 2.5f, new Vector2(0, 0));
-
         InitialVerticies = createVerticies();
         Verticies = (Vector3[])InitialVerticies.Clone();
         Triangles = createTriangles();
@@ -38,7 +41,7 @@ public class MeshGenerator : MonoBehaviour
         Vector2 NoiseMapOffset = Wave1 + Wave2 + Wave3;
         NoiseMapOffset.Normalize();
         NoiseMapOffset *= Time.time;
-        NoiseMap = NoiseGenerator.GenerateNoiseMap(xSize + 1, zSize + 1, 234, 5, 3, 0.5f, 2.5f, NoiseMapOffset * -1);
+        NoiseMap = NoiseGenerator.GenerateNoiseMap(xSize + 1, zSize + 1, 234, Scale, Octaves, Persistance, Lacunarity, NoiseMapOffset * -1);
 
         for(int i = 0; i < Verticies.Length; i++)
         {
