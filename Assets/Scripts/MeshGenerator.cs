@@ -35,6 +35,11 @@ public class MeshGenerator : MonoBehaviour
 
     private void Update()
     {
+        Vector2 NoiseMapOffset = Wave1 + Wave2 + Wave3;
+        NoiseMapOffset.Normalize();
+        NoiseMapOffset *= Time.time;
+        NoiseMap = NoiseGenerator.GenerateNoiseMap(xSize + 1, zSize + 1, 234, 5, 3, 0.5f, 2.5f, NoiseMapOffset * -1);
+
         for(int i = 0; i < Verticies.Length; i++)
         {
             Vector3 newPoint = InitialVerticies[i];
