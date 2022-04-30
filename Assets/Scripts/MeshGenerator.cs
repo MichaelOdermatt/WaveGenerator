@@ -45,8 +45,8 @@ public class MeshGenerator : MonoBehaviour
         // multiply by -1 to reverse the direction of the offset to match waves
         NoiseMapOffset *= Time.time * -1;
         NoiseMap = NoiseGenerator.GenerateNoiseMap(
-            xSize + 1, zSize + 1, 234, Scale, 
-            Octaves, Persistance, Lacunarity, NoiseMapOffset);
+            xSize + 1, zSize + 1, Scale, Octaves, 
+            Persistance, Lacunarity, NoiseMapOffset);
 
         var newVerticies = (Vector3[])InitialVerticies.Clone();
 

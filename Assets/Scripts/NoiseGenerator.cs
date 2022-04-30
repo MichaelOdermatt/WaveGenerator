@@ -4,19 +4,17 @@ using UnityEngine;
 
 public static class NoiseGenerator
 {
-    public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
+    private static int seed = 243;
+
+    public static float[,] GenerateNoiseMap(
+        int mapWidth, int mapHeight, float scale, int octaves, 
+        float persistance, float lacunarity, Vector2 offset)
     {
         float[,] noiseMap = new float[mapWidth, mapHeight];
 
-        System.Random rand = new System.Random(seed);
-        Vector2[] ocataveOffsets = new Vector2[octaves];
-        for (int i = 0; i < octaves; i++)
-        {
-            float offsetX = rand.Next(-100000, 100000) + offset.x;
-            float offsetY = rand.Next(-100000, 100000) + offset.y;
-            ocataveOffsets[i] = new Vector2(offsetX, offsetY);
-        }
+        Vector2[] ocataveOffsets = generateOctaveOffset(seed, octaves, offset);
 
+        // this prevents a divide by zero error
         if (scale <= 0)
         {
             scale = 0.0001f;
@@ -58,12 +56,32 @@ public static class NoiseGenerator
             }
         }
 
-        for (int y = 0; y < mapHeight; y++)
+        noiseMap = normalizeNoiseMap(noiseMap, maxNoiseHeight, minNoiseHeight);
+
+        return noiseMap;
+    }
+
+    private static Vector2[] generateOctaveOffset(int seed, int octaves, Vector2 offset)
+    {
+        System.Random rand = new System.Random(seed);
+        Vector2[] ocataveOffsets = new Vector2[octaves];
+        for (int i = 0; i < octaves; i++)
         {
-            for (int x = 0; x < mapWidth; x++)
+            float offsetX = rand.Next(-100000, 100000) + offset.x;
+            float offsetY = rand.Next(-100000, 100000) + offset.y;
+            ocataveOffsets[i] = new Vector2(offsetX, offsetY);
+        }
+
+        return ocataveOffsets;
+    }
+
+    private static float[,] normalizeNoiseMap(float[,] noiseMap, float maxNoiseHeight, float minNoiseHeight)
+    {
+        for (int y = 0; y < noiseMap.GetLength(0); y++)
+        {
+            for (int x = 0; x < noiseMap.GetLength(1); x++)
             {
                 noiseMap[x, y] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[x, y]);
-                //noiseMap[x, y] = meshHeightCurve.Evaluate(noiseMap[x, y]);
             }
         }
 
