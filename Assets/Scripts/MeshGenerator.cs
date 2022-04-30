@@ -11,12 +11,16 @@ public class MeshGenerator : MonoBehaviour
     int zSize = 100;
     public float HeightMultiplier = 1f;
 
-    public Vector4 Wave1 = new Vector4(1, 1, 0.1f, 150);
-    public Vector4 Wave2 = new Vector4(0, 1, 0.15f,50);
-    public Vector4 Wave3 = new Vector4(1, 1.3f, 0.03f, 100);
+    public Vector4[] Waves = new Vector4[]
+    {
+        // x and y represent wave direction in the x and z direction respectively,
+        // z represents steepness, and w represents wavelength
+        new Vector4(1, 1, 0.2f, 50),
+        new Vector4(0, 1, 0.15f,25),
+        new Vector4(1, 1.3f, 0.15f, 15),
+    };
 
     Mesh waterMesh;
-    Vector3[] Verticies;
     Vector3[] InitialVerticies;
     Vector2[] UVs;
     int[] Triangles;
@@ -25,12 +29,11 @@ public class MeshGenerator : MonoBehaviour
     void Start()
     {
         InitialVerticies = createVerticies();
-        Verticies = (Vector3[])InitialVerticies.Clone();
         Triangles = createTriangles();
 
         waterMesh = new Mesh();
         GetComponent<MeshFilter>().mesh = waterMesh;
-        waterMesh.vertices = Verticies;
+        waterMesh.vertices = InitialVerticies;
         waterMesh.uv = UVs;
         waterMesh.triangles = Triangles;
         waterMesh.RecalculateNormals();
@@ -38,26 +41,36 @@ public class MeshGenerator : MonoBehaviour
 
     private void Update()
     {
-        Vector2 NoiseMapOffset = Wave1 + Wave2 + Wave3;
-        NoiseMapOffset.Normalize();
-        NoiseMapOffset *= Time.time;
-        NoiseMap = NoiseGenerator.GenerateNoiseMap(xSize + 1, zSize + 1, 234, Scale, Octaves, Persistance, Lacunarity, NoiseMapOffset * -1);
+        Vector2 NoiseMapOffset = getWaveDirection();
+        // multiply by -1 to reverse the direction of the offset to match waves
+        NoiseMapOffset *= Time.time * -1;
+        NoiseMap = NoiseGenerator.GenerateNoiseMap(
+            xSize + 1, zSize + 1, 234, Scale, 
+            Octaves, Persistance, Lacunarity, NoiseMapOffset);
 
-        for(int i = 0; i < Verticies.Length; i++)
+        var newVerticies = (Vector3[])InitialVerticies.Clone();
+
+        for(int i = 0; i < InitialVerticies.Length; i++)
         {
-            Vector3 newPoint = InitialVerticies[i];
-
-            newPoint += GerstnerWave(Wave1, InitialVerticies[i]);
-            newPoint += GerstnerWave(Wave2, InitialVerticies[i]);
-            newPoint += GerstnerWave(Wave3, InitialVerticies[i]);
-
-            newPoint.y += NoiseMap[(int)InitialVerticies[i].x, (int)InitialVerticies[i].z] * HeightMultiplier;
-
-            Verticies[i] = newPoint;
+            newVerticies[i] = applyGerstnerWaveAndNoise(InitialVerticies[i], Waves);
         }
 
-        waterMesh.vertices = Verticies;
+        waterMesh.vertices = newVerticies;
         waterMesh.RecalculateNormals();
+    }
+
+    private Vector3 applyGerstnerWaveAndNoise(Vector3 Vertex, Vector4[] waves)
+    {
+        Vector3 newPoint = Vertex;
+
+        foreach (var wave in waves)
+        {
+            newPoint += GerstnerWave(wave, Vertex);
+        }
+
+        newPoint.y += NoiseMap[(int)Vertex.x, (int)Vertex.z] * HeightMultiplier;
+
+        return newPoint;
     }
 
     private Vector3 GerstnerWave(Vector4 wave, Vector3 vertex)
@@ -81,6 +94,19 @@ public class MeshGenerator : MonoBehaviour
         newPosition.z = waveDirection.y * (a  * Mathf.Cos(f));
 
         return newPosition;
+    }
+
+    private Vector2 getWaveDirection()
+    {
+        Vector2 sum = Vector2.zero;
+
+        foreach (Vector2 wave in Waves)
+        {
+            sum += wave;
+        }
+
+        sum.Normalize();
+        return sum;
     }
 
     private Vector3[] createVerticies()
