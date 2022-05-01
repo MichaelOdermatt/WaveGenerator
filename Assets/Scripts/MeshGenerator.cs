@@ -73,13 +73,7 @@ public class MeshGenerator : MonoBehaviour
             }
         }
 
-        Colors = new Color[newVerticies.Length];
-
-        for (int i = 0; i < newVerticies.Length; i++)
-        {
-            var height = Mathf.InverseLerp(minVertexHeight, maxVertexHeight, newVerticies[i].y);
-            Colors[i] = waterColor.Evaluate(height);
-        }
+        Colors = createMeshColorMap(minVertexHeight, maxVertexHeight, newVerticies);
 
         waterMesh.vertices = newVerticies;
         waterMesh.colors = Colors;
@@ -193,6 +187,19 @@ public class MeshGenerator : MonoBehaviour
         }
 
         return uvs;
+    }
+
+    private Color[] createMeshColorMap(float minVertexHeight, float maxVertexHeight, Vector3[] verticies)
+    {
+        Color[] colors = new Color[verticies.Length];
+
+        for (int i = 0; i < verticies.Length; i++)
+        {
+            var height = Mathf.InverseLerp(minVertexHeight, maxVertexHeight, verticies[i].y);
+            colors[i] = waterColor.Evaluate(height);
+        }
+
+        return colors;
     }
 }
 
