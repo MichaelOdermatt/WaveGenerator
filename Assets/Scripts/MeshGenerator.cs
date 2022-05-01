@@ -61,7 +61,14 @@ public class MeshGenerator : MonoBehaviour
             newVerticies[i] = applyGerstnerWaveAndNoise(InitialVerticies[i], Waves);
         }
 
+        Colors = new Color[newVerticies.Length];
+        for (int i = 0; i < Colors.Length; i++)
+        {
+            Colors[i] = waterColor.Evaluate(0.5f);
+        }
+
         waterMesh.vertices = newVerticies;
+        waterMesh.colors = Colors;
         waterMesh.RecalculateNormals();
     }
 
@@ -172,17 +179,6 @@ public class MeshGenerator : MonoBehaviour
         }
 
         return uvs;
-    }
-
-    private void setTexture(){
-        Texture2D texture = new Texture2D(xSize, zSize);
-        texture.filterMode = FilterMode.Point;
-        texture.wrapMode = TextureWrapMode.Clamp;
-
-        texture.SetPixels(Colors);
-        texture.Apply();
-
-        GetComponent<MeshRenderer>().sharedMaterial.mainTexture = texture;
     }
 }
 
