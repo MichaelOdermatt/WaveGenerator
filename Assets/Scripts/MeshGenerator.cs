@@ -56,24 +56,28 @@ public class MeshGenerator : MonoBehaviour
 
         var newVerticies = (Vector3[])InitialVerticies.Clone();
 
-        float maxVertexHeight = float.MinValue;
-        float minVertexHeight = float.MaxValue;
+        float maxVertexNormal = float.MinValue;
+        float minVertexNormal = float.MaxValue;
+
+        Vector3[] normals = waterMesh.normals;
+        float[] steepness = new float[newVerticies.Length];
 
         for (int i = 0; i < InitialVerticies.Length; i++)
         {
             newVerticies[i] = applyGerstnerWaveAndNoise(InitialVerticies[i], Waves);
 
-            if (newVerticies[i].y > maxVertexHeight)
+            steepness[i] = Vector3.Dot(normals[i], Vector3.up);
+            if (steepness[i] > maxVertexNormal)
             {
-                maxVertexHeight = newVerticies[i].y;
+                maxVertexNormal = steepness[i];
             }
-            if (newVerticies[i].y < minVertexHeight)
+            if (steepness[i] < minVertexNormal)
             {
-                minVertexHeight = newVerticies[i].y;
+                minVertexNormal = steepness[i];
             }
         }
 
-        Colors = createMeshColorMap(minVertexHeight, maxVertexHeight, newVerticies);
+        Colors = createMeshColorMap(minVertexNormal, maxVertexNormal, newVerticies, steepness);
 
         waterMesh.vertices = newVerticies;
         waterMesh.colors = Colors;
@@ -189,13 +193,13 @@ public class MeshGenerator : MonoBehaviour
         return uvs;
     }
 
-    private Color[] createMeshColorMap(float minVertexHeight, float maxVertexHeight, Vector3[] verticies)
+    private Color[] createMeshColorMap(float minVertexNormal, float maxVertexNormal, Vector3[] verticies, float[] steepness)
     {
         Color[] colors = new Color[verticies.Length];
 
         for (int i = 0; i < verticies.Length; i++)
         {
-            var height = Mathf.InverseLerp(minVertexHeight, maxVertexHeight, verticies[i].y);
+            var height = Mathf.InverseLerp(minVertexNormal, maxVertexNormal, steepness[i]);
             colors[i] = waterColor.Evaluate(height);
         }
 
