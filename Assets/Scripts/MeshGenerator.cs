@@ -6,6 +6,7 @@ public class MeshGenerator : MonoBehaviour
     public int Octaves = 4;
     public float Persistance = 0.5f;
     public float Lacunarity = 3.5f;
+    public float waveSpeedMulitiplier = 1f;
 
     int xSize = 100;
     int zSize = 100;
@@ -23,17 +24,22 @@ public class MeshGenerator : MonoBehaviour
     Mesh waterMesh;
     Vector3[] InitialVerticies;
     Vector2[] UVs;
+    Color[] Colors;
     int[] Triangles;
     float[,] NoiseMap;
+
+    public Gradient waterColor;
 
     void Start()
     {
         InitialVerticies = createVerticies();
         Triangles = createTriangles();
+        UVs = createUVs(InitialVerticies);
 
         waterMesh = new Mesh();
         GetComponent<MeshFilter>().mesh = waterMesh;
         waterMesh.vertices = InitialVerticies;
+        waterMesh.colors = Colors;
         waterMesh.uv = UVs;
         waterMesh.triangles = Triangles;
         waterMesh.RecalculateNormals();
@@ -45,12 +51,12 @@ public class MeshGenerator : MonoBehaviour
         // multiply by -1 to reverse the direction of the offset to match waves
         NoiseMapOffset *= Time.time * -1;
         NoiseMap = NoiseGenerator.GenerateNoiseMap(
-            xSize + 1, zSize + 1, Scale, Octaves, 
+            xSize + 1, zSize + 1, Scale, Octaves,
             Persistance, Lacunarity, NoiseMapOffset);
 
         var newVerticies = (Vector3[])InitialVerticies.Clone();
 
-        for(int i = 0; i < InitialVerticies.Length; i++)
+        for (int i = 0; i < InitialVerticies.Length; i++)
         {
             newVerticies[i] = applyGerstnerWaveAndNoise(InitialVerticies[i], Waves);
         }
@@ -84,14 +90,14 @@ public class MeshGenerator : MonoBehaviour
         float gravity = Mathf.Abs(Physics.gravity.y);
         float c = Mathf.Sqrt(gravity / k);
         float dot = Vector2.Dot(waveDirection, new Vector2(vertex.x, vertex.z));
-        float f = k * (dot - c * Time.time);
+        float f = k * (dot - c * Time.time * waveSpeedMulitiplier);
         float a = steepness / k;
 
         Vector3 newPosition = Vector3.zero;
 
         newPosition.x = waveDirection.x * (a * Mathf.Cos(f));
         newPosition.y = a * Mathf.Sin(f);
-        newPosition.z = waveDirection.y * (a  * Mathf.Cos(f));
+        newPosition.z = waveDirection.y * (a * Mathf.Cos(f));
 
         return newPosition;
     }
@@ -113,9 +119,9 @@ public class MeshGenerator : MonoBehaviour
     {
         Vector3[] verticies = new Vector3[(xSize + 1) * (zSize + 1)];
 
-        for(int i = 0, z = 0; z <= zSize; z++)
+        for (int i = 0, z = 0; z <= zSize; z++)
         {
-            for(int x = 0; x <= xSize; x++)
+            for (int x = 0; x <= xSize; x++)
             {
                 verticies[i] = new Vector3(x, 0, z);
                 i++;
@@ -150,6 +156,33 @@ public class MeshGenerator : MonoBehaviour
         }
 
         return triangels;
+    }
+
+    private Vector2[] createUVs(Vector3[] verticies)
+    {
+        var uvs = new Vector2[verticies.Length];
+
+        for (int i = 0, z = 0; z <= zSize; z++)
+        {
+            for (int x = 0; x <= xSize; x++)
+            {
+                uvs[i] = new Vector2((float)x / xSize, (float)z / zSize);
+                i++;
+            }
+        }
+
+        return uvs;
+    }
+
+    private void setTexture(){
+        Texture2D texture = new Texture2D(xSize, zSize);
+        texture.filterMode = FilterMode.Point;
+        texture.wrapMode = TextureWrapMode.Clamp;
+
+        texture.SetPixels(Colors);
+        texture.Apply();
+
+        GetComponent<MeshRenderer>().sharedMaterial.mainTexture = texture;
     }
 }
 
