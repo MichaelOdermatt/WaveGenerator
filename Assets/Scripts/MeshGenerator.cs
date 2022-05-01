@@ -56,15 +56,29 @@ public class MeshGenerator : MonoBehaviour
 
         var newVerticies = (Vector3[])InitialVerticies.Clone();
 
+        float maxVertexHeight = float.MinValue;
+        float minVertexHeight = float.MaxValue;
+
         for (int i = 0; i < InitialVerticies.Length; i++)
         {
             newVerticies[i] = applyGerstnerWaveAndNoise(InitialVerticies[i], Waves);
+
+            if (newVerticies[i].y > maxVertexHeight)
+            {
+                maxVertexHeight = newVerticies[i].y;
+            }
+            if (newVerticies[i].y < minVertexHeight)
+            {
+                minVertexHeight = newVerticies[i].y;
+            }
         }
 
         Colors = new Color[newVerticies.Length];
-        for (int i = 0; i < Colors.Length; i++)
+
+        for (int i = 0; i < newVerticies.Length; i++)
         {
-            Colors[i] = waterColor.Evaluate(0.5f);
+            var height = Mathf.InverseLerp(minVertexHeight, maxVertexHeight, newVerticies[i].y);
+            Colors[i] = waterColor.Evaluate(height);
         }
 
         waterMesh.vertices = newVerticies;
