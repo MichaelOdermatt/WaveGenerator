@@ -54,10 +54,10 @@ public class MeshGenerator : MonoBehaviour
             xSize + 1, zSize + 1, Scale, Octaves,
             Persistance, Lacunarity, NoiseMapOffset);
 
-        var newVerticies = (Vector3[])InitialVerticies.Clone();
-
         float maxVertexHeight = float.MinValue;
         float minVertexHeight = float.MaxValue;
+
+        var newVerticies = (Vector3[])InitialVerticies.Clone();
 
         Vector3[] normals = waterMesh.normals;
         float[] steepness = new float[newVerticies.Length];
