@@ -56,6 +56,9 @@ public class MeshGenerator : MonoBehaviour
 
         var newVerticies = (Vector3[])InitialVerticies.Clone();
 
+        float maxVertexHeight = float.MinValue;
+        float minVertexHeight = float.MaxValue;
+
         Vector3[] normals = waterMesh.normals;
         float[] steepness = new float[newVerticies.Length];
 
@@ -64,9 +67,18 @@ public class MeshGenerator : MonoBehaviour
             newVerticies[i] = applyGerstnerWaveAndNoise(InitialVerticies[i], Waves);
 
             steepness[i] = Vector3.Dot(normals[i], Vector3.up);
+
+            if (newVerticies[i].y > maxVertexHeight)
+            {
+                maxVertexHeight = newVerticies[i].y;
+            }
+            if (newVerticies[i].y < minVertexHeight)
+            {
+                minVertexHeight = newVerticies[i].y;
+            }
         }
 
-        Colors = createMeshColorMap(newVerticies, steepness);
+        Colors = createMeshColorMap(minVertexHeight, maxVertexHeight, newVerticies, steepness);
 
         waterMesh.vertices = newVerticies;
         waterMesh.colors = Colors;
@@ -182,13 +194,14 @@ public class MeshGenerator : MonoBehaviour
         return uvs;
     }
 
-    private Color[] createMeshColorMap(Vector3[] verticies, float[] steepness)
+    private Color[] createMeshColorMap(float minVertexHeight, float maxVertexHeight, Vector3[] verticies, float[] steepness)
     {
         Color[] colors = new Color[verticies.Length];
 
         for (int i = 0; i < verticies.Length; i++)
         {
-            colors[i] = waterColor.Evaluate(steepness[i]);
+            float height = Mathf.InverseLerp(minVertexHeight, maxVertexHeight, verticies[i].y);
+            colors[i] = waterColor.Evaluate(steepness[i] * height);
         }
 
         return colors;
