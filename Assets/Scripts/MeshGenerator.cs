@@ -7,10 +7,10 @@ public class MeshGenerator : MonoBehaviour
     public float Persistance = 0.5f;
     public float Lacunarity = 3.5f;
     public float waveSpeedMulitiplier = 1f;
+    public float HeightMultiplier = 1f;
 
     int xSize = 100;
     int zSize = 100;
-    public float HeightMultiplier = 1f;
 
     public Vector4[] Waves = new Vector4[]
     {
@@ -200,8 +200,8 @@ public class MeshGenerator : MonoBehaviour
 
         for (int i = 0; i < verticies.Length; i++)
         {
-            float height = Mathf.InverseLerp(minVertexHeight, maxVertexHeight, verticies[i].y);
-            colors[i] = waterColor.Evaluate(steepness[i] * height);
+            float normalizedHeight = Mathf.InverseLerp(minVertexHeight, maxVertexHeight, verticies[i].y);
+            colors[i] = waterColor.Evaluate(steepness[i] * normalizedHeight);
         }
 
         return colors;
